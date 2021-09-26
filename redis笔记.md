@@ -203,7 +203,7 @@ redis-server &
 redis-server redis.conf &
 ```
 
-![image-20210924194554812](C:\Users\tom\AppData\Roaming\Typora\typora-user-images\image-20210924194554812.png)
+![image-20210924194554812](images/image-20210924194554812.png)
 
 
 
@@ -425,6 +425,222 @@ db0:keys=4,expires=0,avg_ttl=0
 
 
 ## key命令
+
+### 1. 查看数据库中的所有key
+
+```sql
+127.0.0.1:6379> set k1 v1
+OK
+127.0.0.1:6379> keys *
+1) "k1"
+
+```
+
+
+
+### 2. 使用 * 表示 0 或多个字符
+
+keys k*：查看数据库中所有以k开头的key
+
+keys k*o：查看数据库中以h开头、以o结尾的key
+
+```sql
+127.0.0.1:6379> keys *name
+1) "username"
+127.0.0.1:6379> keys us*me
+1) "username"
+```
+
+
+
+### 3. 使用 ？ 表示单个
+
+keys h?o：查看数据库中所有以h开头，以o结尾、并且中间只有一个字符的key.
+
+```sql
+127.0.0.1:6379> keys *
+1) "username"
+2) "k1"
+127.0.0.1:6379> keys user?ame
+1) "username"
+
+```
+
+### 4. 使用[a,b,c]表示包含[]内的字符
+
+```sql
+127.0.0.1:6379> keys *
+1) "adress"
+2) "address"
+3) "username"
+4) "k1"
+127.0.0.1:6379> keys ad[abcder]ress
+1) "address"
+
+```
+
+
+
+### 5. exists 判断key是否存在
+
+```sql
+##存在 key 返回 1，其他返回 0
+127.0.0.1:6379> exists username
+(integer) 1
+
+##使用多个 key，返回存在的 key 的数量
+127.0.0.1:6379> exists username address email
+(integer) 2
+
+```
+
+
+
+### 6.移动key到指定数据库实例
+
+```sql
+127.0.0.1:6379> keys *
+1) "adress"
+2) "address"
+3) "username"
+4) "k1"
+
+## 将adress移到数据库实例2
+127.0.0.1:6379> move adress 2
+(integer) 1
+
+127.0.0.1:6379> keys *
+1) "address"
+2) "username"
+3) "k1"
+127.0.0.1:6379> 
+
+```
+
+
+
+### 7. expire设置key的生存时间
+
+```sql
+127.0.0.1:6379> keys *
+1) "address"
+2) "username"
+3) "k1"
+
+##设置username的生存时间为5秒
+127.0.0.1:6379> expire username 5   
+(integer) 1
+
+127.0.0.1:6379> keys *
+1) "address"
+2) "username"
+3) "k1"
+127.0.0.1:6379> keys *
+1) "address"
+2) "k1"
+```
+
+
+
+### 8. ttl 返回key的剩余生存时间
+
+以秒为单位，返回 key 的剩余生存时间（ttl: time to live） 
+
+返回值:
+
+● -1 ：没有设置 key 的生存时间， key 永不过期
+
+● -2 ：key 不存在
+
+● 数字：key 的剩余时间，秒为单位
+
+```sql
+127.0.0.1:6379> keys *
+1) "readlight"
+2) "address"
+3) "k1"
+127.0.0.1:6379> expire readlight 600
+(integer) 1
+## 查询readlight的剩余生存时间
+127.0.0.1:6379> ttl readlight
+(integer) 595
+127.0.0.1:6379> ttl address
+(integer) -1
+127.0.0.1:6379> ttl email
+(integer) -2
+127.0.0.1:6379> 
+
+```
+
+
+
+### 9. 查询key的数据类型
+
+查看 key 所存储值的数据类型返回值：字符串表示的数据类型.
+
+● none (key 不存在)
+
+● string (字符串)
+
+● list (列表)
+
+● set (集合)
+
+● zset (有序集)
+
+● hash (哈希表)
+
+```sql
+127.0.0.1:6379> keys *
+1) "readlight"
+2) "address"
+3) "k1"
+
+##type查询key的类型
+127.0.0.1:6379> type readlight
+string
+```
+
+
+
+### 10. 删除key
+
+删除存在的 key ，不存在的 key 忽略。
+
+返回值：数字，删除的 key 的数量
+
+```sql
+127.0.0.1:6379> del readligth
+(integer) 0
+127.0.0.1:6379> keys *
+1) "readlight"
+2) "address"
+3) "k1"
+127.0.0.1:6379> del k1
+(integer) 1
+127.0.0.1:6379> keys *
+1) "readlight"
+2) "address"
+127.0.0.1:6379> 
+
+```
+
+
+
+### 11.rename重命名key
+
+```sql
+127.0.0.1:6379> keys *
+1) "readlight"
+2) "address"
+127.0.0.1:6379> rename address location
+OK
+127.0.0.1:6379> keys *
+1) "location"
+2) "readlight"
+```
+
+
 
 
 
