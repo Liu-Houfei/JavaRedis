@@ -1,2 +1,6 @@
-# JavaRedis
-Redis基础+Redis高级+Redis面试+Jedis
+# Redis学习进度
+
+2021年10月4日---整理之前的redis笔记
+
+
+
